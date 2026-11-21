@@ -1,10 +1,11 @@
 # Flight Sim Overlay
 
 Flight Sim Overlay is a free, local companion overlay for Microsoft Flight
-Simulator recordings and live streams. Version **2.0.2** turns the original proof
-of concept into a configurable gate-to-gate instrument strip with robust
-SimConnect telemetry, flight-plan-aware progress, a settings studio, and a
-Windows system-tray controller.
+Simulator recordings and live streams. Version **2.1.0** expands the configurable
+gate-to-gate instrument strip with route-aware navigation, active waypoint
+tracking, enhanced ETA/ETE calculations, robust SimConnect telemetry,
+flight-plan-aware progress, a settings studio, and a Windows system-tray
+controller.
 
 ![Flight Sim Overlay anatomy](screenshots/overlay-anatomy.svg)
 
@@ -12,15 +13,16 @@ Windows system-tray controller.
 
 | # | Component | What it does |
 |---:|---|---|
-| 1 | Flight identity | Shows the callsign and SimBrief or SayIntentions origin/destination. |
+| 1 | Flight identity & route awareness | Shows the callsign and full SimBrief route. Completed, active, and future waypoints are visually differentiated. |
 | 2 | Connection rail | Reports SimConnect, SimBrief, SayIntentions, and VATSIM health without covering the instruments. |
 | 3 | Flight phase | Displays the confirmed gate-to-gate phase using configurable hysteresis. |
 | 4 | Primary metrics | Defaults to airspeed, groundspeed, altitude, and vertical speed. Every metric can be reordered or moved. |
 | 5 | Heading instrument | Smooth magnetic heading with correct wrap-around behavior at north. |
-| 6 | Secondary metrics | Route, timing, and position data. Coordinates can be hidden as a group. |
+| 6 | Secondary metrics | Route, timing, and position data including ETA, ETE, and active waypoint information. |
 | 7 | Route progress | Projects the live SimConnect aircraft position onto the imported SimBrief route. Fill and marker share the same progress value. |
 | 8 | Aircraft marker | Choose from six right-facing silhouettes; the marker moves smoothly and never runs backward because of a crossing route leg. |
 | 9 | Phase timeline | Shows the complete gate-to-gate lifecycle and highlights the active stage. |
+| 10 | Active waypoint tracking | Highlights the current navigation target and synchronizes route progression with the flight-phase timeline. |
 
 The previous screenshots remain available in [`screenshots/`](screenshots/).
 
@@ -30,6 +32,12 @@ The previous screenshots remain available in [`screenshots/`](screenshots/).
   approach → arrival → taxiing → at gate
 - Position-based route progress using live SimConnect latitude/longitude and
   SimBrief route geometry
+- Route-aware navigation display with full SimBrief route visualization
+- Active waypoint tracking and highlighting
+- Completed, active, and upcoming waypoint visualization
+- Distance-to-next-waypoint tracking using imported route geometry
+- SimBrief-based ETA and ETE calculations during gate and taxi operations
+- Theme-aware route progression synchronized with the flight-phase timeline
 - Persistent graphical settings with an embedded live preview
 - 15 theme sets, six aircraft markers, transparency from 0–100%, placement,
   scale, smoothing, and metric ordering
@@ -37,6 +45,28 @@ The previous screenshots remain available in [`screenshots/`](screenshots/).
 - SimBrief planning, SayIntentions local flight context, and VATSIM pilot status
 - Graceful offline/INOP behavior and automatic SimConnect reconnection
 - Built-in demo telemetry for setup and stream-scene design
+
+## Route Awareness
+
+Version 2.1 introduces route-aware navigation tracking.
+The overlay now displays the active SimBrief route directly in the header:
+
+```text
+ASA789
+KGEG → TOC → DOXIE → BPI → CHE → TOD → BRK → KCOS
+```
+
+Route segments are displayed in three states:
+
+### Completed
+Previously passed waypoints are displayed using the current theme's completed-progress styling.
+
+### Active
+The active waypoint is highlighted and synchronized with distance-to-next-waypoint calculations.
+
+### Upcoming
+Future waypoints remain visible using a muted appearance matching the flight-phase timeline.
+This allows viewers to understand both flight-phase progression and navigation progression simultaneously.
 
 ## Requirements
 
@@ -137,6 +167,16 @@ generating a new OFP. The app caches the plan, extracts its route polyline, and
 uses live SimConnect coordinates to place the progress marker. SimBrief's fetcher
 does not require an API key for this use.
 
+### Enhanced ETA / ETE
+
+Ground operations use SimBrief planning information when simulator-provided ETA/ETE values are unavailable or unreliable.
+Benefits include:
+- Meaningful ETA values while parked at the gate
+- Accurate ETE during taxi operations
+- Reduced dependence on aircraft-specific GPS implementations
+- Improved consistency across supported aircraft
+Future releases will extend this system with fully dynamic airborne ETA and ETE calculations driven by route progress and aircraft performance.
+
 ### SayIntentions.AI
 
 When the Windows client is running, the app reads
@@ -184,11 +224,16 @@ pytest
 python server.py --demo --no-tray
 ```
 
-See [CHANGELOG.md](CHANGELOG.md) for the complete v2.0.0 change record.
+See [CHANGELOG.md](CHANGELOG.md) for the complete release history and Route Awareness updates.
 
 ## Credits
 
 Original project by [@teezyyoxo](https://github.com/teezyyoxo), with the earlier
 visual redesign credited to [@jocxfin](https://github.com/jocxfin).
+
+Additional contributions from
+[@madamoyyc-source](https://github.com/madamoyyc-source), including route
+awareness, active waypoint tracking, ETA/ETE improvements, and navigation
+visualization enhancements.
 
 Keep the blue side up. ✈
